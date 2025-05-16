@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>1ball - Платформер</title>
     <style>
@@ -11,20 +12,24 @@
             font-family: Arial, sans-serif;
             color: white;
         }
+
         #gameCanvas {
             display: block;
             background-color: #333;
             margin: 0 auto;
             border: 2px solid #444;
         }
+
         #gameContainer {
             text-align: center;
             margin-top: 20px;
         }
+
         #levelIndicator {
             font-size: 24px;
             margin-bottom: 10px;
         }
+
         #instructionsBox {
             margin: 10px auto;
             max-width: 600px;
@@ -33,6 +38,7 @@
             border-radius: 5px;
             text-align: left;
         }
+
         .button {
             background-color: #444;
             color: white;
@@ -43,9 +49,11 @@
             font-size: 16px;
             border-radius: 4px;
         }
+
         .button:hover {
             background-color: #555;
         }
+
         #congratsScreen {
             position: absolute;
             top: 0;
@@ -58,6 +66,7 @@
             align-items: center;
             flex-direction: column;
         }
+
         #congratsScreen h1 {
             color: gold;
             font-size: 48px;
@@ -65,17 +74,18 @@
         }
     </style>
 </head>
+
 <body>
     <div id="gameContainer">
-        <div id="levelIndicator">Уровень 1</div>
+        <div id="levelIndicator" style="display: none;">Уровень 1</div>
         <canvas id="gameCanvas" width="800" height="500"></canvas>
-        <div id="instructionsBox">
+        <div id="instructionsBox" style="display: none;">
             <p>Управление: Используйте стрелки ←→ для движения, пробел для прыжка.</p>
             <p>Цель: Доберитесь до зеленого флага, избегая красных препятствий.</p>
         </div>
-        <button id="resetBtn" class="button">Начать заново</button>
+        <button id="resetBtn" class="button" style="display: none;">Начать заново</button>
     </div>
-    
+
     <div id="congratsScreen">
         <h1>Поздравляем!</h1>
         <p>Вы прошли все уровни игры 1ball!</p>
@@ -90,26 +100,26 @@
         const resetBtn = document.getElementById('resetBtn');
         const congratsScreen = document.getElementById('congratsScreen');
         const playAgainBtn = document.getElementById('playAgainBtn');
-        
+
         // Игровые переменные
         let gameActive = true;
         let currentLevel = 1;
         const gravity = 0.5;
         const friction = 0.8;
         const ballRadius = 20;
-        
+
         // Камера
         const camera = {
             x: 0,
             y: 0,
             width: canvas.width,
             height: canvas.height,
-            leftEdge: function() { return this.x + this.width * 0.25; },
-            rightEdge: function() { return this.x + this.width * 0.75; },
-            topEdge: function() { return this.y + this.height * 0.25; },
-            bottomEdge: function() { return this.y + this.height * 0.75; }
+            leftEdge: function () { return this.x + this.width * 0.25; },
+            rightEdge: function () { return this.x + this.width * 0.75; },
+            topEdge: function () { return this.y + this.height * 0.25; },
+            bottomEdge: function () { return this.y + this.height * 0.75; }
         };
-        
+
         // Объект игрока
         let player = {
             x: 50,
@@ -121,19 +131,19 @@
             isJumping: false,
             color: "#111"
         };
-        
+
         // Элементы управления
         const keys = {
             right: false,
             left: false,
             up: false
         };
-        
+
         // Игровые объекты
         let platforms = [];
         let obstacles = [];
         let goal = {};
-        
+
         // Определение уровней
         const levels = [
             // Уровень 1 - Простое введение
@@ -189,31 +199,31 @@
                 goal: { x: 1250, y: 350, width: 30, height: 50, color: "#4CAF50" }
             }
         ];
-        
+
         // Загрузка уровня
         function loadLevel(levelNumber) {
             const level = levels[levelNumber - 1];
-            
+
             // Сброс игрока
             player.x = level.player.x;
             player.y = level.player.y;
             player.dx = 0;
             player.dy = 0;
             player.isJumping = false;
-            
+
             // Загрузка платформ
-            platforms = level.platforms.map(p => ({...p}));
-            
+            platforms = level.platforms.map(p => ({ ...p }));
+
             // Загрузка препятствий
-            obstacles = level.obstacles.map(o => ({...o}));
-            
+            obstacles = level.obstacles.map(o => ({ ...o }));
+
             // Установка цели
-            goal = {...level.goal};
-            
+            goal = { ...level.goal };
+
             // Обновление индикатора уровня
             levelIndicator.textContent = `Уровень ${levelNumber}`;
         }
-        
+
         // Обработчики событий клавиатуры
         function keyDownHandler(e) {
             if (e.key == "Right" || e.key == "ArrowRight") {
@@ -222,14 +232,14 @@
                 keys.left = true;
             } else if (e.key == "Up" || e.key == "ArrowUp" || e.key == " ") {
                 keys.up = true;
-                
+
                 // Предотвратить прокрутку страницы при нажатии пробела
                 if (e.key == " ") {
                     e.preventDefault();
                 }
             }
         }
-        
+
         function keyUpHandler(e) {
             if (e.key == "Right" || e.key == "ArrowRight") {
                 keys.right = false;
@@ -239,44 +249,44 @@
                 keys.up = false;
             }
         }
-        
+
         document.addEventListener("keydown", keyDownHandler, false);
         document.addEventListener("keyup", keyUpHandler, false);
-        
+
         // Проверка коллизий
         function isColliding(obj1, obj2) {
             // Проверка для круглого obj1 (игрок) и прямоугольного obj2 (платформа/препятствие)
             let testX = obj1.x;
             let testY = obj1.y;
-            
+
             // Определяем ближайшую точку прямоугольника к центру круга
             if (obj1.x < obj2.x) testX = obj2.x;                // левая сторона
             else if (obj1.x > obj2.x + obj2.width) testX = obj2.x + obj2.width;   // правая сторона
-            
+
             if (obj1.y < obj2.y) testY = obj2.y;                // верхняя сторона
             else if (obj1.y > obj2.y + obj2.height) testY = obj2.y + obj2.height; // нижняя сторона
-            
+
             // Расстояние от ближайшей точки до центра круга
             const distX = obj1.x - testX;
             const distY = obj1.y - testY;
             const distance = Math.sqrt((distX * distX) + (distY * distY));
-            
+
             // Столкновение если расстояние меньше радиуса круга
             return distance <= ballRadius;
         }
-        
+
         // Проверка столкновения сверху
         function isCollidingFromTop(obj1, obj2) {
-            return obj1.y + ballRadius >= obj2.y && 
-                   obj1.y + ballRadius <= obj2.y + 10 && 
-                   obj1.x + ballRadius > obj2.x && 
-                   obj1.x - ballRadius < obj2.x + obj2.width;
+            return obj1.y + ballRadius >= obj2.y &&
+                obj1.y + ballRadius <= obj2.y + 10 &&
+                obj1.x + ballRadius > obj2.x &&
+                obj1.x - ballRadius < obj2.x + obj2.width;
         }
-        
+
         // Обновление функции update с добавлением камеры
         function update() {
             if (!gameActive) return;
-            
+
             // Движение игрока
             if (keys.right) {
                 player.dx = player.speed;
@@ -285,23 +295,23 @@
             } else {
                 player.dx *= friction;
             }
-            
+
             // Применение гравитации
             player.dy += gravity;
-            
+
             // Прыжок
             if (keys.up && !player.isJumping) {
                 player.dy = player.jumpForce;
                 player.isJumping = true;
             }
-            
+
             // Обновление позиции
             player.x += player.dx;
             player.y += player.dy;
-            
+
             // Обновление камеры для следования за игроком
             updateCamera();
-            
+
             // Проверка коллизий с платформами
             let onPlatform = false;
             platforms.forEach(platform => {
@@ -312,7 +322,7 @@
                         player.dy = 0;
                         player.isJumping = false;
                         onPlatform = true;
-                    } 
+                    }
                     // Столкновение снизу с платформой
                     else if (player.dy < 0 && player.y - ballRadius <= platform.y + platform.height) {
                         player.y = platform.y + platform.height + ballRadius;
@@ -329,18 +339,18 @@
                     }
                 }
             });
-            
+
             if (!onPlatform) {
                 player.isJumping = true;
             }
-            
+
             // Проверка столкновений с препятствиями
             obstacles.forEach(obstacle => {
                 if (isColliding(player, obstacle)) {
                     resetLevel();
                 }
             });
-            
+
             // Проверка достижения цели
             if (isColliding(player, goal)) {
                 if (currentLevel < levels.length) {
@@ -350,19 +360,19 @@
                     completedGame();
                 }
             }
-            
+
             // Ограничение движений игрока по горизонтали (уже нет необходимости в границах экрана)
             if (player.x - ballRadius < 0) {
                 player.x = ballRadius;
                 player.dx = 0;
             }
-            
+
             // Проверка падения
-            if (player.y > camera.y + canvas.height + ballRadius) {
+            if (player.y > (canvas.height + ballRadius)) {
                 resetLevel();
             }
         }
-        
+
         // Функция обновления камеры
         function updateCamera() {
             // По горизонтали камера следует за игроком
@@ -371,104 +381,105 @@
             } else if (player.x > camera.rightEdge()) {
                 camera.x = player.x - camera.width * 0.75;
             }
-            
+
             // По вертикали камера следует за игроком
             if (player.y < camera.topEdge()) {
                 camera.y = player.y - camera.height * 0.25;
             } else if (player.y > camera.bottomEdge()) {
                 camera.y = player.y - camera.height * 0.75;
             }
-            
+
             // Проверка границ камеры
             if (camera.x < 0) camera.x = 0;
             if (camera.y < 0) camera.y = 0;
         }
-        
+
         // Обновление функции отрисовки с поддержкой камеры
         function draw() {
             // Очистка холста
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
+
             // Сохранение контекста
             ctx.save();
-            
+
             // Перемещение контекста с учетом камеры
             ctx.translate(-camera.x, -camera.y);
-            
+
             // Отрисовка платформ
             platforms.forEach(platform => {
                 ctx.fillStyle = platform.color;
                 ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
             });
-            
+
             // Отрисовка препятствий
             obstacles.forEach(obstacle => {
                 ctx.fillStyle = obstacle.color;
                 ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
             });
-            
+
             // Отрисовка цели (флаг)
             ctx.fillStyle = goal.color;
             ctx.fillRect(goal.x, goal.y, goal.width, goal.height);
-            
+
             // Флагшток
             ctx.fillStyle = "#8B4513";
             ctx.fillRect(goal.x - 5, goal.y - 20, 5, goal.height + 20);
-            
+
             // Отрисовка игрока (шар)
             ctx.beginPath();
             ctx.fillStyle = player.color;
             ctx.arc(player.x, player.y, ballRadius, 0, Math.PI * 2);
             ctx.fill();
             ctx.closePath();
-            
+
             // Эффект блеска на шаре
             ctx.beginPath();
             ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
-            ctx.arc(player.x - ballRadius/3, player.y - ballRadius/3, ballRadius/3, 0, Math.PI * 2);
+            ctx.arc(player.x - ballRadius / 3, player.y - ballRadius / 3, ballRadius / 3, 0, Math.PI * 2);
             ctx.fill();
             ctx.closePath();
-            
+
             // Восстановление контекста
             ctx.restore();
         }
-        
+
         // Игровой цикл
         function gameLoop() {
             update();
             draw();
             requestAnimationFrame(gameLoop);
         }
-        
+
         // Сброс уровня
         function resetLevel() {
             loadLevel(currentLevel);
         }
-        
+
         // Функция завершения игры
         function completedGame() {
             gameActive = false;
             congratsScreen.style.display = "flex";
         }
-        
+
         // Начало игры заново
-        resetBtn.addEventListener('click', function() {
+        resetBtn.addEventListener('click', function () {
             currentLevel = 1;
             loadLevel(currentLevel);
             gameActive = true;
         });
-        
+
         // Кнопка "Играть снова" на экране поздравления
-        playAgainBtn.addEventListener('click', function() {
+        playAgainBtn.addEventListener('click', function () {
             congratsScreen.style.display = "none";
             currentLevel = 1;
             loadLevel(currentLevel);
             gameActive = true;
         });
-        
+
         // Инициализация игры
         loadLevel(currentLevel);
         gameLoop();
     </script>
 </body>
+
 </html>
