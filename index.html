@@ -4,7 +4,12 @@
 <head>
     <title>1ball</title>
     <style>
+        html {
+            height: 100%;
+        }
+
         body {
+            height: 100%;
             margin: 0;
             padding: 0;
             overflow: hidden;
@@ -16,11 +21,13 @@
         #gameCanvas {
             display: block;
             background-color: #333;
-            margin: 0 auto;
+            margin: auto;
             border: 2px solid #444;
         }
 
         #gameContainer {
+            display: flex;
+            height: 100%;
             text-align: center;
             margin-top: 20px;
         }
@@ -104,7 +111,7 @@
         // Игровые переменные
         let gameActive = true;
         let currentLevel = 1;
-        const gravity = 0.5;
+        const gravity = 0.05;
         const friction = 0.8;
         const ballRadius = 20;
 
@@ -126,8 +133,8 @@
             y: 400,
             dx: 0,
             dy: 0,
-            speed: 5,
-            jumpForce: -12,
+            speed: 2,
+            jumpForce: -4,
             isJumping: false,
             color: "#111"
         };
