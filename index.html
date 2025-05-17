@@ -121,10 +121,10 @@
             y: 0,
             width: canvas.width,
             height: canvas.height,
-            leftEdge: function () { return this.x + this.width * 0.25; },
-            rightEdge: function () { return this.x + this.width * 0.75; },
-            topEdge: function () { return this.y + this.height * 0.25; },
-            bottomEdge: function () { return this.y + this.height * 0.75; }
+            leftEdge: function () { return this.x + this.width * 0.33; },
+            rightEdge: function () { return this.x + this.width * 0.66; },
+            topEdge: function () { return this.y + this.height * 0.33; },
+            bottomEdge: function () { return this.y + this.height * 0.66; }
         };
 
         // Объект игрока
@@ -375,7 +375,7 @@
             }
 
             // Проверка падения
-            if (player.y > (canvas.height + ballRadius)) {
+            if (player.y > (canvas.height + ballRadius + 2000)) {
                 resetLevel();
             }
         }
